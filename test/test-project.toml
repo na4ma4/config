@@ -1,0 +1,8 @@
+[category1]
+  float = 3.14
+  int = 8008
+  string = "foobar"
+  strings = ["string1","string2"]
+
+[server]
+  address = "127.0.0.1:8080"

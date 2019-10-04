@@ -1,19 +1,3 @@
-# na4ma4/config
-
-[![Build Status](https://travis-ci.org/na4ma4/config.svg?branch=master)](https://travis-ci.org/na4ma4/config)
-[![GoDoc](https://godoc.org/github.com/na4ma4/config/src/jwt?status.svg)](https://godoc.org/github.com/na4ma4/config)
-
-Go package for a thread-safe config interface
-
-## Installation
-
-```
-go get -u github.com/na4ma4/config
-```
-
-## Example
-
-```
 package main
 
 import (
@@ -22,6 +6,12 @@ import (
 
 	"github.com/na4ma4/config"
 )
+
+// test-project.toml contains:
+// *****************************
+// [server]
+// address="127.0.0.1:8080"
+// *****************************
 
 func main() {
 	// Create config (example supplied viper)
@@ -38,6 +28,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-```
-
