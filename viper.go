@@ -23,6 +23,23 @@ type ViperConf struct {
 	filename string
 }
 
+// NewViperConfigFromViper returns a Conf compatible ViperConf object copied from the system viper.Viper.
+func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
+	allset := vcfg.AllSettings()
+	v := &ViperConf{
+		viper:    viper.New(),
+		mutex:    &sync.Mutex{},
+		filename: vcfg.ConfigFileUsed(),
+	}
+	for key, val := range allset {
+		v.Set(key, val)
+	}
+	if len(filename) > 0 {
+		v.filename = filename[0]
+	}
+	return v
+}
+
 // NewViperConfig returns a Conf compatible ViperConf object.
 func NewViperConfig(project string, filename ...string) Conf {
 	if len(filename) > 0 {

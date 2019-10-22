@@ -3,10 +3,12 @@ package config_test
 import (
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/na4ma4/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/spf13/viper"
 )
 
 var _ = Describe("ViperConf test", func() {
@@ -65,6 +67,23 @@ var _ = Describe("ViperConf test", func() {
 		expectedOutput := "\n[category]\n  test = \"barfoo\"\n"
 
 		Expect(string(b)).To(Equal(expectedOutput))
+	})
+
+	It("importing system viper", func() {
+		viper.SetDefault("sesame.open", "open.sesame")
+		viper.SetDefault("system.test.duration", "30s")
+		viper.Set("fooman", "barwoman")
+
+		viper.SetDefault("system.default", "default")
+
+		v := config.NewViperConfigFromViper(viper.GetViper())
+
+		v.Set("system.default", "override")
+
+		Expect(v.GetString("sesame.open")).To(Equal("open.sesame"))
+		Expect(v.GetString("fooman")).To(Equal("barwoman"))
+		Expect(v.GetDuration("system.test.duration")).To(Equal(30 * time.Second))
+		Expect(v.GetString("system.default")).To(Equal("override"))
 	})
 
 })
