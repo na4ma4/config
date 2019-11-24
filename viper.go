@@ -127,126 +127,113 @@ func (v *ViperConf) initConfig(project string) {
 // Get returns an interface. For a specific value use one of the Get____ methods.
 func (v *ViperConf) Get(key string) interface{} {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.Get(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetBool returns the value associated with the key as a boolean.
 func (v *ViperConf) GetBool(key string) bool {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetBool(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetDuration returns the value associated with the key as a duration.
 func (v *ViperConf) GetDuration(key string) time.Duration {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetDuration(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetFloat64 returns the value associated with the key as a float64.
 func (v *ViperConf) GetFloat64(key string) float64 {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetFloat64(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetInt returns the value associated with the key as an int.
 func (v *ViperConf) GetInt(key string) int {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetInt(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetIntSlice returns the value associated with the key as a slice of ints.
 func (v *ViperConf) GetIntSlice(key string) []int {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := cast.ToIntSlice(v.viper.Get(key))
-	v.mutex.Unlock()
 	return val
 }
 
 // GetString returns the value associated with the key as a string.
 func (v *ViperConf) GetString(key string) string {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetString(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // GetStringSlice returns the value associated with the key as a slice of strings.
 func (v *ViperConf) GetStringSlice(key string) []string {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	val := v.viper.GetStringSlice(key)
-	v.mutex.Unlock()
 	return val
 }
 
 // Set sets the value for the key in the viper object.
 func (v *ViperConf) Set(key string, value interface{}) {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetBool sets the value for the key in the viper object.
 func (v *ViperConf) SetBool(key string, value bool) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetDuration sets the value for the key in the viper object.
 func (v *ViperConf) SetDuration(key string, value time.Duration) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetFloat64 sets the value for the key in the viper object.
 func (v *ViperConf) SetFloat64(key string, value float64) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetInt sets the value for the key in the viper object.
 func (v *ViperConf) SetInt(key string, value int) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetIntSlice sets the value for the key in the viper object.
 func (v *ViperConf) SetIntSlice(key string, value []int) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetString sets the value for the key in the viper object.
 func (v *ViperConf) SetString(key string, value string) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // SetStringSlice sets the value for the key in the viper object.
 func (v *ViperConf) SetStringSlice(key string, value []string) {
-	v.mutex.Lock()
 	v.viper.Set(key, value)
-	v.mutex.Unlock()
 }
 
 // Save writes the config to the file system.
 func (v *ViperConf) Save() error {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	if err := os.MkdirAll(filepath.Dir(v.filename), os.ModePerm); err != nil {
 		return err
 	}
@@ -254,7 +241,6 @@ func (v *ViperConf) Save() error {
 		return err
 	}
 	err := v.viper.WriteConfigAs(v.filename)
-	v.mutex.Unlock()
 	return err
 }
 
@@ -277,11 +263,11 @@ func (v *ViperConf) Write(out io.Writer) error {
 func (v *ViperConf) ZapConfig() zap.Config {
 	var cfg zap.Config
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	if v.viper.GetBool("debug") {
 		cfg = zap.NewDevelopmentConfig()
 	} else {
 		cfg = zap.NewProductionConfig()
 	}
-	v.mutex.Unlock()
 	return cfg
 }
