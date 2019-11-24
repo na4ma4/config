@@ -19,7 +19,7 @@ import (
 // ViperConf is a Conf compatible Viper configuration object
 type ViperConf struct {
 	viper    *viper.Viper
-	mutex    *sync.Mutex
+	lock     *sync.Mutex
 	filename string
 }
 
@@ -28,7 +28,7 @@ func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
 	allset := vcfg.AllSettings()
 	v := &ViperConf{
 		viper:    viper.New(),
-		mutex:    &sync.Mutex{},
+		lock:     &sync.Mutex{},
 		filename: vcfg.ConfigFileUsed(),
 	}
 	for key, val := range allset {
@@ -46,7 +46,7 @@ func NewViperConfig(project string, filename ...string) Conf {
 		for i, fname := range filename {
 			v := &ViperConf{
 				viper:    viper.New(),
-				mutex:    &sync.Mutex{},
+				lock:     &sync.Mutex{},
 				filename: fname,
 			}
 			err := v.readFromFile(project, fname)
@@ -74,7 +74,7 @@ func NewViperConfig(project string, filename ...string) Conf {
 	fname := fmt.Sprintf("%s.toml", project)
 	v := &ViperConf{
 		viper:    viper.New(),
-		mutex:    &sync.Mutex{},
+		lock:     &sync.Mutex{},
 		filename: fname,
 	}
 	v.initConfig(project)
@@ -85,8 +85,8 @@ func NewViperConfig(project string, filename ...string) Conf {
 }
 
 func (v *ViperConf) readFromFile(project, filename string) error {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.SetConfigName(project)
 	v.viper.SetConfigType("toml")
 	v.viper.SetConfigFile(filename)
@@ -94,16 +94,16 @@ func (v *ViperConf) readFromFile(project, filename string) error {
 }
 
 func (v *ViperConf) setFilename(filename string) {
-	v.mutex.Lock()
+	v.lock.Lock()
 	v.filename = filename
 	v.viper.SetConfigType("toml")
 	v.viper.SetConfigFile(filename)
-	v.mutex.Unlock()
+	v.lock.Unlock()
 }
 
 func (v *ViperConf) initConfig(project string) {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.SetConfigName(project)
 	v.viper.SetConfigType("toml")
 	v.viper.AddConfigPath("./artifacts")
@@ -126,72 +126,72 @@ func (v *ViperConf) initConfig(project string) {
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
 func (v *ViperConf) Get(key string) interface{} {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.Get(key)
 	return val
 }
 
 // GetBool returns the value associated with the key as a boolean.
 func (v *ViperConf) GetBool(key string) bool {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetBool(key)
 	return val
 }
 
 // GetDuration returns the value associated with the key as a duration.
 func (v *ViperConf) GetDuration(key string) time.Duration {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetDuration(key)
 	return val
 }
 
 // GetFloat64 returns the value associated with the key as a float64.
 func (v *ViperConf) GetFloat64(key string) float64 {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetFloat64(key)
 	return val
 }
 
 // GetInt returns the value associated with the key as an int.
 func (v *ViperConf) GetInt(key string) int {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetInt(key)
 	return val
 }
 
 // GetIntSlice returns the value associated with the key as a slice of ints.
 func (v *ViperConf) GetIntSlice(key string) []int {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := cast.ToIntSlice(v.viper.Get(key))
 	return val
 }
 
 // GetString returns the value associated with the key as a string.
 func (v *ViperConf) GetString(key string) string {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetString(key)
 	return val
 }
 
 // GetStringSlice returns the value associated with the key as a slice of strings.
 func (v *ViperConf) GetStringSlice(key string) []string {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	val := v.viper.GetStringSlice(key)
 	return val
 }
 
 // Set sets the value for the key in the viper object.
 func (v *ViperConf) Set(key string, value interface{}) {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
@@ -232,8 +232,8 @@ func (v *ViperConf) SetStringSlice(key string, value []string) {
 
 // Save writes the config to the file system.
 func (v *ViperConf) Save() error {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	if err := os.MkdirAll(filepath.Dir(v.filename), os.ModePerm); err != nil {
 		return err
 	}
@@ -245,8 +245,8 @@ func (v *ViperConf) Save() error {
 }
 
 func (v *ViperConf) Write(out io.Writer) error {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	c := v.viper.AllSettings()
 	t, err := toml.TreeFromMap(c)
 	if err != nil {
@@ -262,8 +262,8 @@ func (v *ViperConf) Write(out io.Writer) error {
 // ZapConfig returns a zap logger configuration derived from settings in the viper config.
 func (v *ViperConf) ZapConfig() zap.Config {
 	var cfg zap.Config
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	if v.viper.GetBool("debug") {
 		cfg = zap.NewDevelopmentConfig()
 	} else {
