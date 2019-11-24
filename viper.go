@@ -118,6 +118,15 @@ func (v *ViperConf) initConfig(project string) {
 	v.viper.ReadInConfig()
 }
 
+// SetDefault sets the default value for this key.
+// SetDefault is case-insensitive for a key.
+// Default only used when no value is provided by the user via flag, config or ENV.
+func (v *ViperConf) SetDefault(key string, value interface{}) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
+	v.viper.SetDefault(key, value)
+}
+
 // Get can retrieve any value given the key to use.
 // Get is case-insensitive for a key.
 // Get has the behavior of returning the value associated with the first
