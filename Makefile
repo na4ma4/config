@@ -4,6 +4,11 @@
 .makefiles/%:
 	@curl -sfL https://makefiles.dev/v1 | bash /dev/stdin "$@"
 
+_GO_GTE_1_14 := $(shell expr `go version | cut -d' ' -f 3 | tr -d 'a-z' | cut -d'.' -f2` \>= 14)
+
+ifeq "$(_GO_GTE_1_14)" "1"
+_MODFILEARG := $(_MODFILEARG)
+endif
 
 ######################
 # Testing
@@ -12,7 +17,7 @@
 GINKGO := artifacts/ginkgo/bin/ginkgo
 $(GINKGO):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod github.com/onsi/ginkgo/ginkgo
+	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) github.com/onsi/ginkgo/ginkgo
 
 test:: $(GINKGO)
 	-@mkdir -p "artifacts/test"
@@ -25,12 +30,12 @@ test:: $(GINKGO)
 MISSPELL := artifacts/misspell/bin/misspell
 $(MISSPELL):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod github.com/client9/misspell/cmd/misspell
+	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) github.com/client9/misspell/cmd/misspell
 
 GOLINT := artifacts/golint/bin/golint
 $(GOLINT):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod golang.org/x/lint/golint
+	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) golang.org/x/lint/golint
 
 GOLANGCILINT := artifacts/golangci-lint/bin/golangci-lint
 $(GOLANGCILINT):
@@ -40,7 +45,7 @@ $(GOLANGCILINT):
 STATICCHECK := artifacts/staticcheck/bin/staticcheck
 $(STATICCHECK):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod honnef.co/go/tools/cmd/staticcheck
+	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: lint
 lint:: $(MISSPELL) $(GOLINT) $(GOLANGCILINT) $(STATICCHECK)
