@@ -3,7 +3,6 @@ package config_test
 import (
 	"io/ioutil"
 	"os"
-	"time"
 
 	"github.com/na4ma4/config"
 	. "github.com/onsi/ginkgo"
@@ -30,23 +29,23 @@ var _ = Describe("ViperConf test", func() {
 			}
 		}()
 
-		string_test := v.GetString("test.string")
+		stringTest := v.GetString("test.string")
 
-		Expect(string_test).To(Equal("string"))
+		Expect(stringTest).To(Equal("string"))
 	})
 
 	It("loading from file", func() {
 		v := config.NewViperConfig("test-project")
 
-		string_test := v.GetString("category1.string")
-		Expect(string_test).To(Equal("foobar"))
+		stringTest := v.GetString("category1.string")
+		Expect(stringTest).To(Equal("foobar"))
 	})
 
 	It("loading from specified file", func() {
 		v := config.NewViperConfig("test", "test/test-project.toml")
 
-		string_test := v.GetString("category1.string")
-		Expect(string_test).To(Equal("foobar"))
+		stringTest := v.GetString("category1.string")
+		Expect(stringTest).To(Equal("foobar"))
 	})
 
 	It("writing to a file", func() {
@@ -82,8 +81,20 @@ var _ = Describe("ViperConf test", func() {
 
 		Expect(v.GetString("sesame.open")).To(Equal("open.sesame"))
 		Expect(v.GetString("fooman")).To(Equal("barwoman"))
-		Expect(v.GetDuration("system.test.duration")).To(Equal(30 * time.Second))
+		Expect(v.GetDuration("system.test.duration").String()).To(Equal("30s"))
 		Expect(v.GetString("system.default")).To(Equal("override"))
+	})
+
+	It("can set a default value", func() {
+		v := config.NewViperConfigFromViper(viper.GetViper())
+
+		v.(*config.ViperConf).SetDefault("some-key-with-default", "custom-default-value")
+
+		Expect(v.GetString("some-key-with-default")).To(Equal("custom-default-value"))
+
+		v.Set("some-key-with-default", "new-value")
+
+		Expect(v.GetString("some-key-with-default")).To(Equal("new-value"))
 	})
 
 })

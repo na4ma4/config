@@ -31,12 +31,15 @@ func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
 		lock:     &sync.Mutex{},
 		filename: vcfg.ConfigFileUsed(),
 	}
+
 	for key, val := range allset {
 		v.Set(key, val)
 	}
+
 	if len(filename) > 0 {
 		v.filename = filename[0]
 	}
+
 	return v
 }
 
@@ -50,6 +53,7 @@ func NewViperConfig(project string, filename ...string) Conf {
 				filename: fname,
 			}
 			err := v.readFromFile(project, fname)
+
 			if i == len(filename)-1 {
 				// If filenames are specified, the last one is used as the fallback
 				// and is then used for the `Save()` method.
@@ -67,6 +71,7 @@ func NewViperConfig(project string, filename ...string) Conf {
 			if v.viper.ConfigFileUsed() == "" {
 				continue
 			}
+
 			return v
 		}
 	}
@@ -78,18 +83,22 @@ func NewViperConfig(project string, filename ...string) Conf {
 		filename: fname,
 	}
 	v.initConfig(project)
+
 	if !strings.EqualFold(v.viper.ConfigFileUsed(), "") {
 		v.filename = v.viper.ConfigFileUsed()
 	}
+
 	return v
 }
 
 func (v *ViperConf) readFromFile(project, filename string) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
+
 	v.viper.SetConfigName(project)
 	v.viper.SetConfigType("toml")
 	v.viper.SetConfigFile(filename)
+
 	return v.viper.ReadInConfig()
 }
 
@@ -104,6 +113,7 @@ func (v *ViperConf) setFilename(filename string) {
 func (v *ViperConf) initConfig(project string) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
+
 	v.viper.SetConfigName(project)
 	v.viper.SetConfigType("toml")
 	v.viper.AddConfigPath("./artifacts")
@@ -115,7 +125,7 @@ func (v *ViperConf) initConfig(project string) {
 	v.viper.AddConfigPath("/run/secrets")
 	v.viper.AddConfigPath(".")
 
-	v.viper.ReadInConfig()
+	_ = v.viper.ReadInConfig()
 }
 
 // SetDefault sets the default value for this key.
@@ -138,6 +148,7 @@ func (v *ViperConf) Get(key string) interface{} {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.Get(key)
+
 	return val
 }
 
@@ -146,6 +157,7 @@ func (v *ViperConf) GetBool(key string) bool {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetBool(key)
+
 	return val
 }
 
@@ -154,6 +166,7 @@ func (v *ViperConf) GetDuration(key string) time.Duration {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetDuration(key)
+
 	return val
 }
 
@@ -162,6 +175,7 @@ func (v *ViperConf) GetFloat64(key string) float64 {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetFloat64(key)
+
 	return val
 }
 
@@ -170,6 +184,7 @@ func (v *ViperConf) GetInt(key string) int {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetInt(key)
+
 	return val
 }
 
@@ -178,6 +193,7 @@ func (v *ViperConf) GetIntSlice(key string) []int {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := cast.ToIntSlice(v.viper.Get(key))
+
 	return val
 }
 
@@ -186,6 +202,7 @@ func (v *ViperConf) GetString(key string) string {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetString(key)
+
 	return val
 }
 
@@ -194,6 +211,7 @@ func (v *ViperConf) GetStringSlice(key string) []string {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetStringSlice(key)
+
 	return val
 }
 
@@ -257,40 +275,46 @@ func (v *ViperConf) SetStringSlice(key string, value []string) {
 func (v *ViperConf) Save() error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
+
 	if err := os.MkdirAll(filepath.Dir(v.filename), os.ModePerm); err != nil {
 		return err
 	}
+
 	if _, err := os.Create(v.filename); err != nil {
 		return err
 	}
-	err := v.viper.WriteConfigAs(v.filename)
-	return err
+
+	return v.viper.WriteConfigAs(v.filename)
 }
 
 func (v *ViperConf) Write(out io.Writer) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
+
 	c := v.viper.AllSettings()
+
 	t, err := toml.TreeFromMap(c)
 	if err != nil {
 		return err
 	}
+
 	s := t.String()
+
 	if _, err := io.WriteString(out, s); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // ZapConfig returns a zap logger configuration derived from settings in the viper config.
 func (v *ViperConf) ZapConfig() zap.Config {
-	var cfg zap.Config
 	v.lock.Lock()
 	defer v.lock.Unlock()
+
 	if v.viper.GetBool("debug") {
-		cfg = zap.NewDevelopmentConfig()
-	} else {
-		cfg = zap.NewProductionConfig()
+		return zap.NewDevelopmentConfig()
 	}
-	return cfg
+
+	return zap.NewProductionConfig()
 }
