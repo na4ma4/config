@@ -1,14 +1,11 @@
 language: go
 go:
 - '1.13'
+- '1.14'
 - 'tip'
 matrix:
   fast_finish: true
   allow_failures:
   - go: tip
-install:
-- go get -v github.com/onsi/ginkgo/ginkgo
-- go get -v github.com/onsi/gomega
-- go get -v -t ./...
-- export PATH=$PATH:$HOME/gopath/bin
-script: ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --compilers=2 --nodes=2
+script: 
+- make test

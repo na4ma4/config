@@ -206,36 +206,50 @@ func (v *ViperConf) Set(key string, value interface{}) {
 
 // SetBool sets the value for the key in the viper object.
 func (v *ViperConf) SetBool(key string, value bool) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetDuration sets the value for the key in the viper object.
 func (v *ViperConf) SetDuration(key string, value time.Duration) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetFloat64 sets the value for the key in the viper object.
 func (v *ViperConf) SetFloat64(key string, value float64) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetInt sets the value for the key in the viper object.
 func (v *ViperConf) SetInt(key string, value int) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetIntSlice sets the value for the key in the viper object.
 func (v *ViperConf) SetIntSlice(key string, value []int) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetString sets the value for the key in the viper object.
 func (v *ViperConf) SetString(key string, value string) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetStringSlice sets the value for the key in the viper object.
 func (v *ViperConf) SetStringSlice(key string, value []string) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
