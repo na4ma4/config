@@ -27,6 +27,11 @@ $(MISSPELL):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod github.com/client9/misspell/cmd/misspell
 
+GOLINT := artifacts/golint/bin/golint
+$(GOLINT):
+	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
+	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod golang.org/x/lint/golint
+
 GOLANGCILINT := artifacts/golangci-lint/bin/golangci-lint
 $(GOLANGCILINT):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
@@ -38,9 +43,9 @@ $(STATICCHECK):
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: lint
-lint:: $(MISSPELL) $(GOLANGCILINT) $(STATICCHECK)
+lint:: $(MISSPELL) $(GOLINT) $(GOLANGCILINT) $(STATICCHECK)
 	go vet ./...
-	golint -set_exit_status ./...
+	$(GOLINT) -set_exit_status ./...
 	$(MISSPELL) -w -error -locale UK ./...
 	$(GOLANGCILINT) run --enable-all ./...
 	$(STATICCHECK) -checks all -fail "all,-U1001" ./...
