@@ -14,7 +14,7 @@ $(GINKGO):
 	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get -modfile tools.mod github.com/onsi/ginkgo/ginkgo
 
-test:: artifacts/test/config.coverprofile $(GINKGO)
+test:: $(GINKGO)
 	-@mkdir -p "artifacts/test"
 	$(GINKGO) -outputdir "artifacts/test/" -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --compilers=2 --nodes=2
 
