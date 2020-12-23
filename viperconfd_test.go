@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var _ = Describe("ViperConf test", func() {
+var _ = Describe("ViperConfD test", func() {
 	It("is thread-safe", func() {
-		v := config.NewViperConfig("test")
+		v := config.NewViperConfD("test", "test/conf.d")
 
 		v.SetString("test.string", "string")
 
@@ -34,14 +34,14 @@ var _ = Describe("ViperConf test", func() {
 	})
 
 	It("loading from file", func() {
-		v := config.NewViperConfig("test-project")
+		v := config.NewViperConfD("test-project", "test/conf.d")
 
 		stringTest := v.GetString("category1.string")
 		Expect(stringTest).To(Equal("foobar"))
 	})
 
 	It("loading from specified file", func() {
-		v := config.NewViperConfig("test", "test/test-project.toml")
+		v := config.NewViperConfD("test", "test/conf.d", "test/test-project.toml")
 
 		stringTest := v.GetString("category1.string")
 		Expect(stringTest).To(Equal("foobar"))
@@ -52,7 +52,7 @@ var _ = Describe("ViperConf test", func() {
 		Expect(err).NotTo(HaveOccurred())
 		defer os.Remove(tempfile.Name())
 
-		v := config.NewViperConfig("test", tempfile.Name())
+		v := config.NewViperConfD("test", "", tempfile.Name())
 
 		v.SetString("category.test", "barfoo")
 
@@ -74,7 +74,7 @@ var _ = Describe("ViperConf test", func() {
 
 		viper.SetDefault("system.default", "default")
 
-		v := config.NewViperConfigFromViper(viper.GetViper())
+		v := config.NewViperConfDFromViper(viper.GetViper(), "test/conf.d")
 
 		v.Set("system.default", "override")
 
@@ -85,14 +85,27 @@ var _ = Describe("ViperConf test", func() {
 	})
 
 	It("can set a default value", func() {
-		v := config.NewViperConfigFromViper(viper.GetViper())
+		v := config.NewViperConfDFromViper(viper.GetViper(), "test/conf.d")
 
-		v.(*config.ViperConf).SetDefault("some-key-with-default", "custom-default-value")
+		v.(*config.ViperConfD).SetDefault("some-key-with-default", "custom-default-value")
 
 		Expect(v.GetString("some-key-with-default")).To(Equal("custom-default-value"))
 
 		v.Set("some-key-with-default", "new-value")
 
 		Expect(v.GetString("some-key-with-default")).To(Equal("new-value"))
+	})
+
+	It("will load the conf.d files", func() {
+		v := config.NewViperConfDFromViper(viper.GetViper(), "test/conf.d")
+
+		Expect(v.GetInt("category2.int")).To(Equal(8335))
+	})
+
+	It("will load in order and overwrite specified options", func() {
+		v := config.NewViperConfDFromViper(viper.GetViper(), "test/conf.d")
+
+		Expect(v.GetString("category3.first")).To(Equal("foo"))
+		Expect(v.GetString("category3.second")).To(Equal("foobar"))
 	})
 })

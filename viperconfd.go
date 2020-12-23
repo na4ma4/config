@@ -15,17 +15,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// ViperConf is a Conf compatible Viper configuration object.
-type ViperConf struct {
+// ViperConfD is a Conf compatible Viper configuration object.
+type ViperConfD struct {
 	viper    *viper.Viper
 	lock     *sync.Mutex
 	filename string
 }
 
-// NewViperConfigFromViper returns a Conf compatible ViperConf object copied from the system viper.Viper.
-func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
+// NewViperConfDFromViper returns a Conf compatible ViperConfD object copied from the system viper.Viper.
+func NewViperConfDFromViper(vcfg *viper.Viper, confdpath string, filename ...string) Conf {
 	allset := vcfg.AllSettings()
-	v := &ViperConf{
+	v := &ViperConfD{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: vcfg.ConfigFileUsed(),
@@ -39,14 +39,16 @@ func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
 		v.filename = filename[0]
 	}
 
+	_ = v.loadConfigPath(confdpath)
+
 	return v
 }
 
-// NewViperConfig returns a Conf compatible ViperConf object.
-func NewViperConfig(project string, filename ...string) Conf {
+// NewViperConfD returns a Conf compatible ViperConfD object.
+func NewViperConfD(project string, confdpath string, filename ...string) Conf {
 	if len(filename) > 0 {
 		for i, fname := range filename {
-			v := &ViperConf{
+			v := &ViperConfD{
 				viper:    viper.New(),
 				lock:     &sync.Mutex{},
 				filename: fname,
@@ -72,12 +74,14 @@ func NewViperConfig(project string, filename ...string) Conf {
 				continue
 			}
 
+			_ = v.loadConfigPath(confdpath)
+
 			return v
 		}
 	}
 
 	fname := fmt.Sprintf("%s.toml", project)
-	v := &ViperConf{
+	v := &ViperConfD{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: fname,
@@ -88,10 +92,12 @@ func NewViperConfig(project string, filename ...string) Conf {
 		v.filename = v.viper.ConfigFileUsed()
 	}
 
+	_ = v.loadConfigPath(confdpath)
+
 	return v
 }
 
-func (v *ViperConf) readFromFile(project, filename string) error {
+func (v *ViperConfD) readFromFile(project, filename string) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
@@ -102,7 +108,7 @@ func (v *ViperConf) readFromFile(project, filename string) error {
 	return v.viper.ReadInConfig()
 }
 
-func (v *ViperConf) setFilename(filename string) {
+func (v *ViperConfD) setFilename(filename string) {
 	v.lock.Lock()
 	v.filename = filename
 	v.viper.SetConfigType("toml")
@@ -110,7 +116,50 @@ func (v *ViperConf) setFilename(filename string) {
 	v.lock.Unlock()
 }
 
-func (v *ViperConf) initConfig(project string) {
+func (v *ViperConfD) loadConfigPath(confdpath string) error {
+	if confdpath != "" {
+		v.lock.Lock()
+		v.viper.SetConfigType("toml")
+		v.lock.Unlock()
+
+		abspath, err := filepath.Abs(confdpath)
+		if err != nil {
+			abspath = confdpath
+		}
+
+		m, err := filepath.Glob(fmt.Sprintf("%s/*.toml", abspath))
+		if err != nil || m == nil {
+			return fmt.Errorf("unable to find config files \"%s\": %w", fmt.Sprintf("%s/*.toml", abspath), err)
+		}
+
+		for _, fn := range m {
+			if err := v.mergeConfigFile(fn); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (v *ViperConfD) mergeConfigFile(filename string) error {
+	v.lock.Lock()
+	defer v.lock.Unlock()
+
+	f, err := os.Open(filename)
+	if err != nil {
+		return fmt.Errorf("unable to open config file \"%s\": %w", filename, err)
+	}
+	defer f.Close()
+
+	if err = v.viper.MergeConfig(f); err != nil {
+		return fmt.Errorf("unable to merge config file \"%s\": %w", filename, err)
+	}
+
+	return nil
+}
+
+func (v *ViperConfD) initConfig(project string) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
@@ -131,10 +180,15 @@ func (v *ViperConf) initConfig(project string) {
 // SetDefault sets the default value for this key.
 // SetDefault is case-insensitive for a key.
 // Default only used when no value is provided by the user via flag, config or ENV.
-func (v *ViperConf) SetDefault(key string, value interface{}) {
+func (v *ViperConfD) SetDefault(key string, value interface{}) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.SetDefault(key, value)
+}
+
+// AllSettings merges all settings and returns them as a map[string]interface{}.
+func (v *ViperConfD) AllSettings() map[string]interface{} {
+	return v.viper.AllSettings()
 }
 
 // Get can retrieve any value given the key to use.
@@ -144,7 +198,7 @@ func (v *ViperConf) SetDefault(key string, value interface{}) {
 // override, flag, env, config file, key/value store, default
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
-func (v *ViperConf) Get(key string) interface{} {
+func (v *ViperConfD) Get(key string) interface{} {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.Get(key)
@@ -153,7 +207,7 @@ func (v *ViperConf) Get(key string) interface{} {
 }
 
 // GetBool returns the value associated with the key as a boolean.
-func (v *ViperConf) GetBool(key string) bool {
+func (v *ViperConfD) GetBool(key string) bool {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetBool(key)
@@ -162,7 +216,7 @@ func (v *ViperConf) GetBool(key string) bool {
 }
 
 // GetDuration returns the value associated with the key as a duration.
-func (v *ViperConf) GetDuration(key string) time.Duration {
+func (v *ViperConfD) GetDuration(key string) time.Duration {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetDuration(key)
@@ -171,7 +225,7 @@ func (v *ViperConf) GetDuration(key string) time.Duration {
 }
 
 // GetFloat64 returns the value associated with the key as a float64.
-func (v *ViperConf) GetFloat64(key string) float64 {
+func (v *ViperConfD) GetFloat64(key string) float64 {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetFloat64(key)
@@ -180,7 +234,7 @@ func (v *ViperConf) GetFloat64(key string) float64 {
 }
 
 // GetInt returns the value associated with the key as an int.
-func (v *ViperConf) GetInt(key string) int {
+func (v *ViperConfD) GetInt(key string) int {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetInt(key)
@@ -189,7 +243,7 @@ func (v *ViperConf) GetInt(key string) int {
 }
 
 // GetIntSlice returns the value associated with the key as a slice of ints.
-func (v *ViperConf) GetIntSlice(key string) []int {
+func (v *ViperConfD) GetIntSlice(key string) []int {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := cast.ToIntSlice(v.viper.Get(key))
@@ -198,7 +252,7 @@ func (v *ViperConf) GetIntSlice(key string) []int {
 }
 
 // GetString returns the value associated with the key as a string.
-func (v *ViperConf) GetString(key string) string {
+func (v *ViperConfD) GetString(key string) string {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetString(key)
@@ -207,7 +261,7 @@ func (v *ViperConf) GetString(key string) string {
 }
 
 // GetStringSlice returns the value associated with the key as a slice of strings.
-func (v *ViperConf) GetStringSlice(key string) []string {
+func (v *ViperConfD) GetStringSlice(key string) []string {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.GetStringSlice(key)
@@ -216,63 +270,63 @@ func (v *ViperConf) GetStringSlice(key string) []string {
 }
 
 // Set sets the value for the key in the viper object.
-func (v *ViperConf) Set(key string, value interface{}) {
+func (v *ViperConfD) Set(key string, value interface{}) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetBool sets the value for the key in the viper object.
-func (v *ViperConf) SetBool(key string, value bool) {
+func (v *ViperConfD) SetBool(key string, value bool) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetDuration sets the value for the key in the viper object.
-func (v *ViperConf) SetDuration(key string, value time.Duration) {
+func (v *ViperConfD) SetDuration(key string, value time.Duration) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetFloat64 sets the value for the key in the viper object.
-func (v *ViperConf) SetFloat64(key string, value float64) {
+func (v *ViperConfD) SetFloat64(key string, value float64) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetInt sets the value for the key in the viper object.
-func (v *ViperConf) SetInt(key string, value int) {
+func (v *ViperConfD) SetInt(key string, value int) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetIntSlice sets the value for the key in the viper object.
-func (v *ViperConf) SetIntSlice(key string, value []int) {
+func (v *ViperConfD) SetIntSlice(key string, value []int) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetString sets the value for the key in the viper object.
-func (v *ViperConf) SetString(key string, value string) {
+func (v *ViperConfD) SetString(key string, value string) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // SetStringSlice sets the value for the key in the viper object.
-func (v *ViperConf) SetStringSlice(key string, value []string) {
+func (v *ViperConfD) SetStringSlice(key string, value []string) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)
 }
 
 // Save writes the config to the file system.
-func (v *ViperConf) Save() error {
+func (v *ViperConfD) Save() error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
@@ -287,7 +341,7 @@ func (v *ViperConf) Save() error {
 	return v.viper.WriteConfigAs(v.filename)
 }
 
-func (v *ViperConf) Write(out io.Writer) error {
+func (v *ViperConfD) Write(out io.Writer) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
@@ -308,7 +362,7 @@ func (v *ViperConf) Write(out io.Writer) error {
 }
 
 // ZapConfig returns a zap logger configuration derived from settings in the viper config.
-func (v *ViperConf) ZapConfig() zap.Config {
+func (v *ViperConfD) ZapConfig() zap.Config {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 

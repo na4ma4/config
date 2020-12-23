@@ -27,31 +27,40 @@ test:: $(GINKGO)
 # Linting
 ######################
 
-MISSPELL := artifacts/misspell/bin/misspell
+MISSPELL := artifacts/bin/misspell
 $(MISSPELL):
-	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
+	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) github.com/client9/misspell/cmd/misspell
 
-GOLINT := artifacts/golint/bin/golint
+GOLINT := artifacts/bin/golint
 $(GOLINT):
-	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
+	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) golang.org/x/lint/golint
 
-GOLANGCILINT := artifacts/golangci-lint/bin/golangci-lint
+GOLANGCILINT := artifacts/bin/golangci-lint
 $(GOLANGCILINT):
-	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(MF_PROJECT_ROOT)/$(@D)" v1.23.8
+	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(MF_PROJECT_ROOT)/$(@D)" v1.33.0
 
-STATICCHECK := artifacts/staticcheck/bin/staticcheck
+STATICCHECK := artifacts/bin/staticcheck
 $(STATICCHECK):
-	@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
+	-@mkdir -p "$(MF_PROJECT_ROOT)/$(@D)"
 	GOBIN="$(MF_PROJECT_ROOT)/$(@D)" go get $(_MODFILEARG) honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: lint
-lint:: $(MISSPELL) $(GOLINT) $(GOLANGCILINT) $(STATICCHECK)
+lint:: $(GOLINT) $(MISSPELL) $(GOLANGCILINT) $(STATICCHECK)
 	go vet ./...
 	$(GOLINT) -set_exit_status ./...
 	$(MISSPELL) -w -error -locale UK ./...
-	$(GOLANGCILINT) run --enable-all ./...
+	$(GOLANGCILINT) run --enable-all --disable 'paralleltest' ./...
 	$(STATICCHECK) -checks all -fail "all,-U1001" ./...
 
+ci:: lint
+
+
+######################
+# Preload Tools
+######################
+
+.PHONY: tools
+tools: $(MISSPELL) $(GOLINT) $(GOLANGCILINT) $(STATICCHECK) $(CFSSL) $(CFSSLJSON)

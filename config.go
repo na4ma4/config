@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Conf is the default configuration object interface
+// Conf is the default configuration object interface.
 type Conf interface {
 	Get(key string) interface{}
 	GetBool(key string) bool
