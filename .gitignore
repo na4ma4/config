@@ -14,3 +14,4 @@
 # Build and testing artifacts
 /artifacts
 /.makefiles
+/dist
