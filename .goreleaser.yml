@@ -1,4 +1,4 @@
-project_name: mylib-go
+project_name: config
 build:
   skip: true
 release:
