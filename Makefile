@@ -1,10 +1,6 @@
 -include .makefiles/Makefile
 -include .makefiles/pkg/go/v1/Makefile
 -include .makefiles/ext/na4ma4/pkg/lib-golangci-lint/v1/Makefile
--include .makefiles/ext/na4ma4/pkg/lib-golint/v1/Makefile
--include .makefiles/ext/na4ma4/pkg/lib-misspell/v1/Makefile
--include .makefiles/ext/na4ma4/pkg/lib-staticcheck/v1/Makefile
--include .makefiles/ext/na4ma4/pkg/lib-cfssl/v1/Makefile
 -include .makefiles/ext/na4ma4/pkg/lib-goreleaser/v1/Makefile
 
 .makefiles/ext/na4ma4/%: .makefiles/Makefile
