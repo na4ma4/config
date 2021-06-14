@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
-	github.com/onsi/ginkgo v1.16.3
+	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.13.0
 	github.com/pelletier/go-toml v1.9.1
 	github.com/spf13/afero v1.6.0 // indirect
