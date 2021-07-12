@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/onsi/ginkgo v1.16.4
-	github.com/onsi/gomega v1.13.0
+	github.com/onsi/gomega v1.14.0
 	github.com/pelletier/go-toml v1.9.3
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.8.1
