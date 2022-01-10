@@ -7,7 +7,7 @@ require (
 	github.com/onsi/gomega v1.17.0
 	github.com/pelletier/go-toml v1.9.4
 	github.com/spf13/cast v1.4.1
-	github.com/spf13/viper v1.10.0
+	github.com/spf13/viper v1.10.1
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1
 )
