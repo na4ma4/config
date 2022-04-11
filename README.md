@@ -1,6 +1,6 @@
 # na4ma4/config
 
-![ci](https://github.com/na4ma4/config/workflows/ci/badge.svg)
+![CI](https://github.com/na4ma4/config/workflows/CI/badge.svg)
 [![GoDoc](https://godoc.org/github.com/na4ma4/config/src/jwt?status.svg)](https://godoc.org/github.com/na4ma4/config)
 
 Go package for a thread-safe config interface
