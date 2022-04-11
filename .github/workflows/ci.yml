@@ -52,7 +52,7 @@ jobs:
   goreleaser:
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
-    - unit-test
+    - unittest
     name: goreleaser
     runs-on: ubuntu-20.04
     steps:
