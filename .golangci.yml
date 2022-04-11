@@ -1,0 +1,11 @@
+linters:
+  enable-all: true
+  exclude-use-default: false
+  disable:
+    - golint
+    - interfacer
+    - ireturn
+    - maligned
+    - paralleltest
+    - scopelint
+    - varnamelen

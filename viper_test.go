@@ -87,7 +87,9 @@ var _ = Describe("ViperConf test", func() {
 	It("can set a default value", func() {
 		v := config.NewViperConfigFromViper(viper.GetViper())
 
-		v.(*config.ViperConf).SetDefault("some-key-with-default", "custom-default-value")
+		if vp, ok := v.(*config.ViperConf); ok {
+			vp.SetDefault("some-key-with-default", "custom-default-value")
+		}
 
 		Expect(v.GetString("some-key-with-default")).To(Equal("custom-default-value"))
 

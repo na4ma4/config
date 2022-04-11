@@ -99,7 +99,11 @@ func (v *ViperConf) readFromFile(project, filename string) error {
 	v.viper.SetConfigType("toml")
 	v.viper.SetConfigFile(filename)
 
-	return v.viper.ReadInConfig()
+	if err := v.viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("unable to read in config: %w", err)
+	}
+
+	return nil
 }
 
 func (v *ViperConf) setFilename(filename string) {
@@ -284,7 +288,11 @@ func (v *ViperConf) Save() error {
 		return fmt.Errorf("unable to create file: %w", err)
 	}
 
-	return v.viper.WriteConfigAs(v.filename)
+	if err := v.viper.WriteConfigAs(v.filename); err != nil {
+		return fmt.Errorf("unable to write out config: %w", err)
+	}
+
+	return nil
 }
 
 func (v *ViperConf) Write(out io.Writer) error {

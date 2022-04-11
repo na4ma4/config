@@ -105,7 +105,11 @@ func (v *ViperConfD) readFromFile(project, filename string) error {
 	v.viper.SetConfigType("toml")
 	v.viper.SetConfigFile(filename)
 
-	return v.viper.ReadInConfig()
+	if err := v.viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("unable to read in config: %w", err)
+	}
+
+	return nil
 }
 
 func (v *ViperConfD) setFilename(filename string) {
@@ -150,7 +154,10 @@ func (v *ViperConfD) mergeConfigFile(filename string) error {
 	if err != nil {
 		return fmt.Errorf("unable to open config file \"%s\": %w", filename, err)
 	}
-	defer f.Close()
+
+	defer func() {
+		_ = f.Close()
+	}()
 
 	if err = v.viper.MergeConfig(f); err != nil {
 		return fmt.Errorf("unable to merge config file \"%s\": %w", filename, err)
@@ -338,7 +345,11 @@ func (v *ViperConfD) Save() error {
 		return fmt.Errorf("unable to create file: %w", err)
 	}
 
-	return v.viper.WriteConfigAs(v.filename)
+	if err := v.viper.WriteConfigAs(v.filename); err != nil {
+		return fmt.Errorf("unable to write config file: %w", err)
+	}
+
+	return nil
 }
 
 func (v *ViperConfD) Write(out io.Writer) error {
