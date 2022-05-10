@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
-	github.com/pelletier/go-toml v1.9.4
+	github.com/pelletier/go-toml v1.9.5
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.11.0
 	go.uber.org/atomic v1.9.0 // indirect
