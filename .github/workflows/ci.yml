@@ -44,7 +44,7 @@ jobs:
       run: make ci
 
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3.1.0
+      uses: golangci/golangci-lint-action@v3
       with:
         version: latest
 
