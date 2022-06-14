@@ -62,7 +62,7 @@ var _ = Describe("ViperConf test", func() {
 		b, err := ioutil.ReadFile(tempfile.Name())
 		Expect(err).NotTo(HaveOccurred())
 
-		expectedOutput := "\n[category]\n  test = \"barfoo\"\n"
+		expectedOutput := "[category]\ntest = 'barfoo'\n\n"
 
 		Expect(string(b)).To(Equal(expectedOutput))
 	})
