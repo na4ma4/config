@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/na4ma4/config"
@@ -48,7 +47,7 @@ var _ = Describe("ViperConf test", func() {
 	})
 
 	It("writing to a file", func() {
-		tempfile, err := ioutil.TempFile("", "*-dummy-file.toml")
+		tempfile, err := os.CreateTemp("", "*-dummy-file.toml")
 		Expect(err).NotTo(HaveOccurred())
 		defer os.Remove(tempfile.Name())
 
@@ -59,7 +58,7 @@ var _ = Describe("ViperConf test", func() {
 		err = v.Save()
 		Expect(err).NotTo(HaveOccurred())
 
-		b, err := ioutil.ReadFile(tempfile.Name())
+		b, err := os.ReadFile(tempfile.Name())
 		Expect(err).NotTo(HaveOccurred())
 
 		expectedOutput := "[category]\ntest = 'barfoo'\n\n"
