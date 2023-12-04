@@ -7,21 +7,6 @@ import (
 	"github.com/na4ma4/config"
 )
 
-// import (
-// 	"reflect"
-// 	"testing"
-
-// 	"github.com/onsi/ginkgo"
-// 	"github.com/onsi/gomega"
-// )
-
-// func TestConfig(t *testing.T) {
-// 	type tag struct{}
-
-// 	gomega.RegisterFailHandler(ginkgo.Fail)
-// 	ginkgo.RunSpecs(t, reflect.TypeOf(tag{}).PkgPath())
-// }
-
 func expectGetString(t *testing.T, vcfg config.Conf, key, expectValue string) {
 	t.Helper()
 
