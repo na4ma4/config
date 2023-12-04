@@ -137,7 +137,7 @@ func (v *ViperConfD) loadConfigPath(confdpath string) error {
 		}
 
 		for _, fn := range m {
-			if err := v.mergeConfigFile(fn); err != nil {
+			if err = v.mergeConfigFile(fn); err != nil {
 				return err
 			}
 		}
@@ -174,6 +174,7 @@ func (v *ViperConfD) initConfig(project string) {
 	v.viper.SetConfigType("toml")
 	v.viper.AddConfigPath("./artifacts")
 	v.viper.AddConfigPath("./test")
+	v.viper.AddConfigPath("./testdata")
 	v.viper.AddConfigPath("$HOME/.config")
 	v.viper.AddConfigPath("/etc")
 	v.viper.AddConfigPath(fmt.Sprintf("/etc/%s", project))
@@ -365,7 +366,7 @@ func (v *ViperConfD) Write(out io.Writer) error {
 
 	s := t.String()
 
-	if _, err := io.WriteString(out, s); err != nil {
+	if _, err = io.WriteString(out, s); err != nil {
 		return fmt.Errorf("unable to write config file: %w", err)
 	}
 

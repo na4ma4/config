@@ -122,6 +122,7 @@ func (v *ViperConf) initConfig(project string) {
 	v.viper.SetConfigType("toml")
 	v.viper.AddConfigPath("./artifacts")
 	v.viper.AddConfigPath("./test")
+	v.viper.AddConfigPath("./testdata")
 	v.viper.AddConfigPath("$HOME/.config")
 	v.viper.AddConfigPath("/etc")
 	v.viper.AddConfigPath(fmt.Sprintf("/etc/%s", project))
@@ -308,7 +309,7 @@ func (v *ViperConf) Write(out io.Writer) error {
 
 	s := t.String()
 
-	if _, err := io.WriteString(out, s); err != nil {
+	if _, err = io.WriteString(out, s); err != nil {
 		return fmt.Errorf("unable to write config file: %w", err)
 	}
 
