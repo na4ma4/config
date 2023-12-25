@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/spf13/cast v1.6.0
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.26.0
 )
 
