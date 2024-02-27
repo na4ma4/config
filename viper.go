@@ -76,7 +76,7 @@ func NewViperConfig(project string, filename ...string) Conf {
 		}
 	}
 
-	fname := fmt.Sprintf("%s.toml", project)
+	fname := project + ".toml"
 	v := &ViperConf{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
@@ -125,8 +125,8 @@ func (v *ViperConf) initConfig(project string) {
 	v.viper.AddConfigPath("./testdata")
 	v.viper.AddConfigPath("$HOME/.config")
 	v.viper.AddConfigPath("/etc")
-	v.viper.AddConfigPath(fmt.Sprintf("/etc/%s", project))
-	v.viper.AddConfigPath(fmt.Sprintf("/usr/local/%s/etc", project))
+	v.viper.AddConfigPath("/etc/" + project)
+	v.viper.AddConfigPath("/usr/local/" + project + "/etc")
 	v.viper.AddConfigPath("/run/secrets")
 	v.viper.AddConfigPath(".")
 

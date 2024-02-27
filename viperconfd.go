@@ -80,7 +80,7 @@ func NewViperConfD(project string, confdpath string, filename ...string) Conf {
 		}
 	}
 
-	fname := fmt.Sprintf("%s.toml", project)
+	fname := project + ".toml"
 	v := &ViperConfD{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
@@ -131,9 +131,9 @@ func (v *ViperConfD) loadConfigPath(confdpath string) error {
 			abspath = confdpath
 		}
 
-		m, err := filepath.Glob(fmt.Sprintf("%s/*.toml", abspath))
+		m, err := filepath.Glob(abspath + "/*.toml")
 		if err != nil || m == nil {
-			return fmt.Errorf("unable to find config files \"%s\": %w", fmt.Sprintf("%s/*.toml", abspath), err)
+			return fmt.Errorf("unable to find config files \"%s\": %w", abspath+"/*.toml", err)
 		}
 
 		for _, fn := range m {
@@ -177,8 +177,8 @@ func (v *ViperConfD) initConfig(project string) {
 	v.viper.AddConfigPath("./testdata")
 	v.viper.AddConfigPath("$HOME/.config")
 	v.viper.AddConfigPath("/etc")
-	v.viper.AddConfigPath(fmt.Sprintf("/etc/%s", project))
-	v.viper.AddConfigPath(fmt.Sprintf("/usr/local/%s/etc", project))
+	v.viper.AddConfigPath("/etc/" + project)
+	v.viper.AddConfigPath("/usr/local/" + project + "/etc")
 	v.viper.AddConfigPath("/run/secrets")
 	v.viper.AddConfigPath(".")
 
