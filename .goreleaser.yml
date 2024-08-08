@@ -1,13 +1,19 @@
+version: 2
+
 project_name: config
-build:
-  skip: true
+
+builds:
+  - skip: true
+
 release:
-  github:
   prerelease: auto
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
   sort: asc
   filters:

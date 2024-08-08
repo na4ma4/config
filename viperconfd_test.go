@@ -17,13 +17,13 @@ func TestViperConfD_ThreadSafe(t *testing.T) {
 	v.SetString("test.string", "string")
 
 	go func() {
-		for i := 0; i < 1000; i++ {
+		for range 1000 {
 			v.SetString("test.string", "string")
 		}
 	}()
 
 	go func() {
-		for i := 0; i < 1000; i++ {
+		for range 1000 {
 			v.GetString("test.string")
 		}
 	}()
@@ -315,7 +315,6 @@ func TestViperConfD_ZapConfig(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
