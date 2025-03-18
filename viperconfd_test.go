@@ -47,7 +47,7 @@ func TestViperConfD_LoadingFromSpecifiedFile(t *testing.T) {
 }
 
 func TestViperConfD_WriteToFile(t *testing.T) {
-	tempfile, tempfileErr := os.CreateTemp("", "*-dummy-file.toml")
+	tempfile, tempfileErr := os.CreateTemp(t.TempDir(), "*-dummy-file.toml")
 	if tempfileErr != nil {
 		t.Errorf("CreateTemp(): error, got '%s', want 'nil'", tempfileErr)
 	}
