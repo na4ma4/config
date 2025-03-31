@@ -1,12 +1,13 @@
 module github.com/na4ma4/config
 
 go 1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/spf13/cast v1.7.1
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	go.uber.org/zap v1.27.0
 )
 
