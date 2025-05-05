@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/pelletier/go-toml v1.9.5
-	github.com/spf13/cast v1.7.1
+	github.com/spf13/cast v1.8.0
 	github.com/spf13/viper v1.20.0
 	go.uber.org/zap v1.27.0
 )
