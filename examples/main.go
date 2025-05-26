@@ -1,3 +1,4 @@
+//nolint:forbidigo // example code.
 package main
 
 import (
