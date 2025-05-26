@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/na4ma4/go-permbits"
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
@@ -338,7 +339,7 @@ func (v *ViperConfD) Save() error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
-	if err := os.MkdirAll(filepath.Dir(v.filename), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(v.filename), permbits.MustString("u=rwx,g=rx")); err != nil {
 		return fmt.Errorf("unable to create directory: %w", err)
 	}
 

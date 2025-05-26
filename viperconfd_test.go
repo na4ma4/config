@@ -325,7 +325,9 @@ func TestViperConfD_ZapConfig(t *testing.T) {
 			loggerConfig := vcfg.ZapConfig()
 
 			if loggerConfig.Development != tt.debug {
-				t.Errorf("config.ZapConfig(): development mode, got '%t', want '%t'", loggerConfig.Development, tt.debug)
+				t.Errorf("config.ZapConfig(): development mode, got '%t', want '%t'",
+					loggerConfig.Development, tt.debug,
+				)
 			}
 		})
 	}
