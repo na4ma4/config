@@ -37,7 +37,7 @@ func NewViperConfDFromViper(vcfg *viper.Viper, confdpath string, filename ...str
 	}
 
 	if len(filename) > 0 {
-		v.filename = filename[0]
+		v.filename = filepath.Clean(os.ExpandEnv(filename[0]))
 	}
 
 	_ = v.loadConfigPath(confdpath)
