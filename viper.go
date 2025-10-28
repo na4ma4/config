@@ -37,7 +37,7 @@ func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
 	}
 
 	if len(filename) > 0 {
-		v.filename = filename[0]
+		v.filename = filepath.Clean(os.ExpandEnv(filename[0]))
 	}
 
 	return v
