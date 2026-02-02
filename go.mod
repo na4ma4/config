@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/google/go-cmp v0.7.0
-	github.com/na4ma4/go-permbits v0.5.3
+	github.com/na4ma4/go-permbits v0.5.4
 	github.com/pelletier/go-toml v1.9.5
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/viper v1.21.0
