@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/na4ma4/config/compare/v1.0.7...v1.0.7) (2026-07-20)
+
+
+### Features
+
+* update golangci-lint config to v2.12.2, add new linters, and update settings ([94e62e7](https://github.com/na4ma4/config/commit/94e62e7940d8b982de0d0851fd641fbaf76e9165))
+
 ## 1.0.7 (2026-02-05)
 
 
