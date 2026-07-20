@@ -8,7 +8,7 @@ import (
 
 // Conf is the default configuration object interface.
 type Conf interface {
-	Get(key string) interface{}
+	Get(key string) any
 	GetBool(key string) bool
 	GetDuration(key string) time.Duration
 	GetFloat64(key string) float64
@@ -17,7 +17,7 @@ type Conf interface {
 	GetString(key string) string
 	GetStringSlice(key string) []string
 
-	Set(key string, value interface{})
+	Set(key string, value any)
 	SetBool(key string, value bool)
 	SetDuration(key string, value time.Duration)
 	SetFloat64(key string, value float64)

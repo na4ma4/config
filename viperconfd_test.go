@@ -6,12 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/na4ma4/config"
-	"github.com/spf13/viper"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestViperConfD_ThreadSafe(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfD("test", "testdata/conf.d")
 
 	v.SetString("test.string", "string")
@@ -32,6 +34,8 @@ func TestViperConfD_ThreadSafe(t *testing.T) {
 }
 
 func TestViperConfD_LoadingFromFile(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfD("test-project", "testdata/conf.d")
 
 	expectGetString(t, v, "category1.string", "foobar")
@@ -39,6 +43,8 @@ func TestViperConfD_LoadingFromFile(t *testing.T) {
 }
 
 func TestViperConfD_LoadingFromSpecifiedFile(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfD("test", "testdata/conf.d", "testdata/test-project.toml")
 
 	expectGetString(t, v, "category1.string", "foobar")
@@ -47,6 +53,8 @@ func TestViperConfD_LoadingFromSpecifiedFile(t *testing.T) {
 }
 
 func TestViperConfD_WriteToFile(t *testing.T) {
+	t.Parallel()
+
 	tempfile, tempfileErr := os.CreateTemp(t.TempDir(), "*-dummy-file.toml")
 	if tempfileErr != nil {
 		t.Errorf("CreateTemp(): error, got '%s', want 'nil'", tempfileErr)
@@ -74,6 +82,8 @@ func TestViperConfD_WriteToFile(t *testing.T) {
 }
 
 func TestViperConfD_WriteToWriter(t *testing.T) {
+	t.Parallel()
+
 	buf := bytes.NewBuffer(nil)
 
 	vcfg := config.NewViperConfD("test", "")
@@ -96,13 +106,17 @@ func TestViperConfD_WriteToWriter(t *testing.T) {
 }
 
 func TestViperConfD_ImportingSystemViper(t *testing.T) {
-	viper.SetDefault("sesame.open", "open.sesame")
-	viper.SetDefault("system.test.duration", "30s")
-	viper.Set("fooman", "barwoman")
+	t.Parallel()
 
-	viper.SetDefault("system.default", "default")
+	tViper := viperGetViper(t)
 
-	vcfg := config.NewViperConfDFromViper(viper.GetViper(), "testdata/conf.d")
+	tViper.SetDefault("sesame.open", "open.sesame")
+	tViper.SetDefault("system.test.duration", "30s")
+	tViper.Set("fooman", "barwoman")
+
+	tViper.SetDefault("system.default", "default")
+
+	vcfg := config.NewViperConfDFromViper(tViper, "testdata/conf.d")
 
 	vcfg.Set("system.default", "override")
 
@@ -113,7 +127,9 @@ func TestViperConfD_ImportingSystemViper(t *testing.T) {
 }
 
 func TestViperConfD_CanSetDefaultValue(t *testing.T) {
-	vcfg := config.NewViperConfDFromViper(viper.GetViper(), "test/conf.d")
+	t.Parallel()
+
+	vcfg := config.NewViperConfDFromViper(viperGetViper(t), "test/conf.d")
 
 	if vp, ok := vcfg.(*config.ViperConfD); ok {
 		vp.SetDefault("some-key-with-default", "custom-default-value")
@@ -127,18 +143,24 @@ func TestViperConfD_CanSetDefaultValue(t *testing.T) {
 }
 
 func TestViperConfD_LoadTheConfDFiles(t *testing.T) {
-	vcfg := config.NewViperConfDFromViper(viper.GetViper(), "testdata/conf.d")
+	t.Parallel()
+
+	vcfg := config.NewViperConfDFromViper(viperGetViper(t), "testdata/conf.d")
 	expectGetInt(t, vcfg, "category2.int", 8335)
 }
 
 func TestViperConfD_OrderLoad(t *testing.T) {
-	vcfg := config.NewViperConfDFromViper(viper.GetViper(), "testdata/conf.d")
+	t.Parallel()
+
+	vcfg := config.NewViperConfDFromViper(viperGetViper(t), "testdata/conf.d")
 
 	expectGetString(t, vcfg, "category3.first", "foo")
 	expectGetString(t, vcfg, "category3.second", "foobar")
 }
 
 func TestViperConfD_GetterSetter_Bool(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := true
@@ -160,6 +182,8 @@ func TestViperConfD_GetterSetter_Bool(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_Duration(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := 10 * time.Second
@@ -181,6 +205,8 @@ func TestViperConfD_GetterSetter_Duration(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_Float64(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := 3.1415
@@ -202,6 +228,8 @@ func TestViperConfD_GetterSetter_Float64(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_Int(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := 1337
@@ -223,6 +251,8 @@ func TestViperConfD_GetterSetter_Int(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_IntSlice(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := []int{100, 200, 50}
@@ -247,6 +277,8 @@ func TestViperConfD_GetterSetter_IntSlice(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_String(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := "foobarmoo"
@@ -263,6 +295,8 @@ func TestViperConfD_GetterSetter_String(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_StringSlice(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := []string{"one", "two", "three"}
@@ -287,6 +321,8 @@ func TestViperConfD_GetterSetter_StringSlice(t *testing.T) {
 }
 
 func TestViperConfD_GetterSetter_Interface(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfD("test-project", "")
 
 	expect := "foobarmoo"

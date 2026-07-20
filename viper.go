@@ -26,40 +26,40 @@ type ViperConf struct {
 // NewViperConfigFromViper returns a Conf compatible ViperConf object copied from the system viper.Viper.
 func NewViperConfigFromViper(vcfg *viper.Viper, filename ...string) Conf {
 	allset := vcfg.AllSettings()
-	v := &ViperConf{
+	viperConfD := &ViperConf{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: vcfg.ConfigFileUsed(),
 	}
 
 	for key, val := range allset {
-		v.Set(key, val)
+		viperConfD.Set(key, val)
 	}
 
 	if len(filename) > 0 {
-		v.filename = filepath.Clean(os.ExpandEnv(filename[0]))
+		viperConfD.filename = filepath.Clean(os.ExpandEnv(filename[0]))
 	}
 
-	return v
+	return viperConfD
 }
 
 // NewViperConfig returns a Conf compatible ViperConf object.
 func NewViperConfig(project string, filename ...string) Conf {
 	if len(filename) > 0 {
-		for i, fname := range filename {
-			v := &ViperConf{
+		for idx, fname := range filename {
+			viperConfD := &ViperConf{
 				viper:    viper.New(),
 				lock:     &sync.Mutex{},
 				filename: fname,
 			}
-			err := v.readFromFile(project, fname)
+			err := viperConfD.readFromFile(project, fname)
 
-			if i == len(filename)-1 {
+			if idx == len(filename)-1 {
 				// If filenames are specified, the last one is used as the fallback
 				// and is then used for the `Save()` method.
-				v.setFilename(fname)
+				viperConfD.setFilename(fname)
 
-				return v
+				return viperConfD
 			}
 
 			// Error loading file, and not the last filename in the list
@@ -68,28 +68,28 @@ func NewViperConfig(project string, filename ...string) Conf {
 			}
 
 			// No error, so the file was loaded successfully
-			v.filename = v.viper.ConfigFileUsed()
-			if v.viper.ConfigFileUsed() == "" {
+			viperConfD.filename = viperConfD.viper.ConfigFileUsed()
+			if viperConfD.viper.ConfigFileUsed() == "" {
 				continue
 			}
 
-			return v
+			return viperConfD
 		}
 	}
 
 	fname := project + ".toml"
-	v := &ViperConf{
+	viperConfD := &ViperConf{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: fname,
 	}
-	v.initConfig(project)
+	viperConfD.initConfig(project)
 
-	if !strings.EqualFold(v.viper.ConfigFileUsed(), "") {
-		v.filename = v.viper.ConfigFileUsed()
+	if !strings.EqualFold(viperConfD.viper.ConfigFileUsed(), "") {
+		viperConfD.filename = viperConfD.viper.ConfigFileUsed()
 	}
 
-	return v
+	return viperConfD
 }
 
 func (v *ViperConf) readFromFile(project, filename string) error {
@@ -137,7 +137,7 @@ func (v *ViperConf) initConfig(project string) {
 // SetDefault sets the default value for this key.
 // SetDefault is case-insensitive for a key.
 // Default only used when no value is provided by the user via flag, config or ENV.
-func (v *ViperConf) SetDefault(key string, value interface{}) {
+func (v *ViperConf) SetDefault(key string, value any) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.SetDefault(key, value)
@@ -150,7 +150,7 @@ func (v *ViperConf) SetDefault(key string, value interface{}) {
 // override, flag, env, config file, key/value store, default
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
-func (v *ViperConf) Get(key string) interface{} {
+func (v *ViperConf) Get(key string) any {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.Get(key)
@@ -222,7 +222,7 @@ func (v *ViperConf) GetStringSlice(key string) []string {
 }
 
 // Set sets the value for the key in the viper object.
-func (v *ViperConf) Set(key string, value interface{}) {
+func (v *ViperConf) Set(key string, value any) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)

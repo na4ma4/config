@@ -26,42 +26,42 @@ type ViperConfD struct {
 // NewViperConfDFromViper returns a Conf compatible ViperConfD object copied from the system viper.Viper.
 func NewViperConfDFromViper(vcfg *viper.Viper, confdpath string, filename ...string) Conf {
 	allset := vcfg.AllSettings()
-	v := &ViperConfD{
+	viperConfD := &ViperConfD{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: vcfg.ConfigFileUsed(),
 	}
 
 	for key, val := range allset {
-		v.Set(key, val)
+		viperConfD.viper.Set(key, val)
 	}
 
 	if len(filename) > 0 {
-		v.filename = filepath.Clean(os.ExpandEnv(filename[0]))
+		viperConfD.filename = filepath.Clean(os.ExpandEnv(filename[0]))
 	}
 
-	_ = v.loadConfigPath(confdpath)
+	_ = viperConfD.loadConfigPath(confdpath)
 
-	return v
+	return viperConfD
 }
 
 // NewViperConfD returns a Conf compatible ViperConfD object.
 func NewViperConfD(project string, confdpath string, filename ...string) Conf {
 	if len(filename) > 0 {
-		for i, fname := range filename {
-			v := &ViperConfD{
+		for idx, fname := range filename {
+			viperConfD := &ViperConfD{
 				viper:    viper.New(),
 				lock:     &sync.Mutex{},
 				filename: fname,
 			}
-			err := v.readFromFile(project, fname)
+			err := viperConfD.readFromFile(project, fname)
 
-			if i == len(filename)-1 {
+			if idx == len(filename)-1 {
 				// If filenames are specified, the last one is used as the fallback
 				// and is then used for the `Save()` method.
-				v.setFilename(fname)
+				viperConfD.setFilename(fname)
 
-				return v
+				return viperConfD
 			}
 
 			// Error loading file, and not the last filename in the list
@@ -70,32 +70,32 @@ func NewViperConfD(project string, confdpath string, filename ...string) Conf {
 			}
 
 			// No error, so the file was loaded successfully
-			v.filename = v.viper.ConfigFileUsed()
-			if v.viper.ConfigFileUsed() == "" {
+			viperConfD.filename = viperConfD.viper.ConfigFileUsed()
+			if viperConfD.viper.ConfigFileUsed() == "" {
 				continue
 			}
 
-			_ = v.loadConfigPath(confdpath)
+			_ = viperConfD.loadConfigPath(confdpath)
 
-			return v
+			return viperConfD
 		}
 	}
 
 	fname := project + ".toml"
-	v := &ViperConfD{
+	viperConfD := &ViperConfD{
 		viper:    viper.New(),
 		lock:     &sync.Mutex{},
 		filename: fname,
 	}
-	v.initConfig(project)
+	viperConfD.initConfig(project)
 
-	if !strings.EqualFold(v.viper.ConfigFileUsed(), "") {
-		v.filename = v.viper.ConfigFileUsed()
+	if !strings.EqualFold(viperConfD.viper.ConfigFileUsed(), "") {
+		viperConfD.filename = viperConfD.viper.ConfigFileUsed()
 	}
 
-	_ = v.loadConfigPath(confdpath)
+	_ = viperConfD.loadConfigPath(confdpath)
 
-	return v
+	return viperConfD
 }
 
 func (v *ViperConfD) readFromFile(project, filename string) error {
@@ -151,16 +151,20 @@ func (v *ViperConfD) mergeConfigFile(filename string) error {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
-	f, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("unable to open config file \"%s\": %w", filename, err)
+	var cfgFile *os.File
+	{
+		var err error
+		cfgFile, err = os.Open(filename)
+		if err != nil {
+			return fmt.Errorf("unable to open config file \"%s\": %w", filename, err)
+		}
 	}
 
 	defer func() {
-		_ = f.Close()
+		_ = cfgFile.Close()
 	}()
 
-	if err = v.viper.MergeConfig(f); err != nil {
+	if err := v.viper.MergeConfig(cfgFile); err != nil {
 		return fmt.Errorf("unable to merge config file \"%s\": %w", filename, err)
 	}
 
@@ -189,14 +193,14 @@ func (v *ViperConfD) initConfig(project string) {
 // SetDefault sets the default value for this key.
 // SetDefault is case-insensitive for a key.
 // Default only used when no value is provided by the user via flag, config or ENV.
-func (v *ViperConfD) SetDefault(key string, value interface{}) {
+func (v *ViperConfD) SetDefault(key string, value any) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.SetDefault(key, value)
 }
 
-// AllSettings merges all settings and returns them as a map[string]interface{}.
-func (v *ViperConfD) AllSettings() map[string]interface{} {
+// AllSettings merges all settings and returns them as a map[string]any.
+func (v *ViperConfD) AllSettings() map[string]any {
 	return v.viper.AllSettings()
 }
 
@@ -207,7 +211,7 @@ func (v *ViperConfD) AllSettings() map[string]interface{} {
 // override, flag, env, config file, key/value store, default
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
-func (v *ViperConfD) Get(key string) interface{} {
+func (v *ViperConfD) Get(key string) any {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	val := v.viper.Get(key)
@@ -279,7 +283,7 @@ func (v *ViperConfD) GetStringSlice(key string) []string {
 }
 
 // Set sets the value for the key in the viper object.
-func (v *ViperConfD) Set(key string, value interface{}) {
+func (v *ViperConfD) Set(key string, value any) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	v.viper.Set(key, value)

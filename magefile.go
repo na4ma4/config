@@ -5,10 +5,9 @@ package main
 import (
 	"context"
 
-	"github.com/magefile/mage/mg"
-
 	//mage:import
 	"github.com/dosquad/mage"
+	"github.com/magefile/mage/mg"
 )
 
 // Local update, protoc, format, tidy, lint & test.

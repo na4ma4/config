@@ -6,12 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/na4ma4/config"
-	"github.com/spf13/viper"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestViper_ThreadSafe(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfig("test")
 
 	v.SetString("test.string", "string")
@@ -32,6 +34,8 @@ func TestViper_ThreadSafe(t *testing.T) {
 }
 
 func TestViper_LoadingFromFile(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfig("test-project")
 
 	expectGetString(t, v, "category1.string", "foobar")
@@ -41,6 +45,8 @@ func TestViper_LoadingFromFile(t *testing.T) {
 }
 
 func TestViper_LoadingFromSpecifiedFile(t *testing.T) {
+	t.Parallel()
+
 	v := config.NewViperConfig("test", "testdata/test-project.toml")
 
 	expectGetString(t, v, "category1.string", "foobar")
@@ -50,6 +56,8 @@ func TestViper_LoadingFromSpecifiedFile(t *testing.T) {
 }
 
 func TestViper_WriteToFile(t *testing.T) {
+	t.Parallel()
+
 	tempfile, tempfileErr := os.CreateTemp(t.TempDir(), "*-dummy-file.toml")
 	if tempfileErr != nil {
 		t.Errorf("CreateTemp(): error, got '%s', want 'nil'", tempfileErr)
@@ -77,6 +85,8 @@ func TestViper_WriteToFile(t *testing.T) {
 }
 
 func TestViper_WriteToWriter(t *testing.T) {
+	t.Parallel()
+
 	buf := bytes.NewBuffer(nil)
 
 	vcfg := config.NewViperConfig("test")
@@ -99,13 +109,17 @@ func TestViper_WriteToWriter(t *testing.T) {
 }
 
 func TestViper_ImportingSystemViper(t *testing.T) {
-	viper.SetDefault("sesame.open", "open.sesame")
-	viper.SetDefault("system.test.duration", "30s")
-	viper.Set("fooman", "barwoman")
+	t.Parallel()
 
-	viper.SetDefault("system.default", "default")
+	tViper := viperGetViper(t)
 
-	vcfg := config.NewViperConfigFromViper(viper.GetViper())
+	tViper.SetDefault("sesame.open", "open.sesame")
+	tViper.SetDefault("system.test.duration", "30s")
+	tViper.Set("fooman", "barwoman")
+
+	tViper.SetDefault("system.default", "default")
+
+	vcfg := config.NewViperConfigFromViper(tViper)
 
 	vcfg.Set("system.default", "override")
 
@@ -116,7 +130,9 @@ func TestViper_ImportingSystemViper(t *testing.T) {
 }
 
 func TestViper_CanSetDefaultValue(t *testing.T) {
-	vcfg := config.NewViperConfigFromViper(viper.GetViper())
+	t.Parallel()
+
+	vcfg := config.NewViperConfigFromViper(viperGetViper(t))
 
 	if vp, ok := vcfg.(*config.ViperConf); ok {
 		vp.SetDefault("some-key-with-default", "custom-default-value")
@@ -130,6 +146,8 @@ func TestViper_CanSetDefaultValue(t *testing.T) {
 }
 
 func TestViper_GetterSetter_Bool(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := true
@@ -151,6 +169,8 @@ func TestViper_GetterSetter_Bool(t *testing.T) {
 }
 
 func TestViper_GetterSetter_Duration(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := 10 * time.Second
@@ -172,6 +192,8 @@ func TestViper_GetterSetter_Duration(t *testing.T) {
 }
 
 func TestViper_GetterSetter_Float64(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := 3.1415
@@ -193,6 +215,8 @@ func TestViper_GetterSetter_Float64(t *testing.T) {
 }
 
 func TestViper_GetterSetter_Int(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := 1337
@@ -214,6 +238,8 @@ func TestViper_GetterSetter_Int(t *testing.T) {
 }
 
 func TestViper_GetterSetter_IntSlice(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := []int{100, 200, 50}
@@ -238,6 +264,8 @@ func TestViper_GetterSetter_IntSlice(t *testing.T) {
 }
 
 func TestViper_GetterSetter_String(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := "foobarmoo"
@@ -254,6 +282,8 @@ func TestViper_GetterSetter_String(t *testing.T) {
 }
 
 func TestViper_GetterSetter_StringSlice(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := []string{"one", "two", "three"}
@@ -278,6 +308,8 @@ func TestViper_GetterSetter_StringSlice(t *testing.T) {
 }
 
 func TestViper_GetterSetter_Interface(t *testing.T) {
+	t.Parallel()
+
 	vcfg := config.NewViperConfig("test-project")
 
 	expect := "foobarmoo"
